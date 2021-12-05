@@ -8,27 +8,7 @@ services:
           - 3050:3050
           - 3051:3051
         volumes:
-          - C:\Work\Src\gibdd\Database:/firebird/data
+          - ./Database:/database
         environment:
           - ISC_PASSWORD=000000
-  # backend:
-    # build:
-      # context: .
-      # dockerfile: Dockerfile.prod
-    # init: true
-    # ports:
-      # - "8081:8840"
-    # restart: unless-stopped
-    # environment: 
-      # - redisHost=host.docker.internal
-      # - dbHost=host.docker.internal
-      # - HOST=0.0.0.0
-    # depends_on:
-      # - redis
-
-  # redis:
-    # build: ./deploy/redis/
-    # init: true
-    # ports:
-      # - "6380:6379"
-    # restart: unless-stopped
+  
