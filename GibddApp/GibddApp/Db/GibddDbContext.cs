@@ -1,18 +1,20 @@
 ﻿using GibddApp.Db.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using System.Configuration;
 
 namespace GibddApp.Db
 {
-    class GibddDbContext : DbContext
+    internal class GibddDbContext : DbContext
 	{
 		static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>  
-			builder.AddConsole()
+			builder.AddNLog()
 			 .AddFilter(level => level >= LogLevel.Debug));
 
 		public GibddDbContext()
-		{			
+		{					
+			
 		}
 
 		public DbSet<Driver> Drivers { get; set; }
@@ -23,7 +25,7 @@ namespace GibddApp.Db
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			base.OnConfiguring(optionsBuilder);
-
+			
 			optionsBuilder
 				.UseLoggerFactory(MyLoggerFactory)
                 .UseFirebird(ConfigurationManager.ConnectionStrings["GibddDatabase"].ConnectionString);

@@ -1,6 +1,3 @@
-using GibddApp.Db;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace GibddApp
 {
     internal static class Program
