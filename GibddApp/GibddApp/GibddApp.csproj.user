@@ -5,6 +5,12 @@
     <Compile Update="Forms\DataView.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\DriverForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

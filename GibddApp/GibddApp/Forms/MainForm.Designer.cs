@@ -1,5 +1,5 @@
 ﻿using GibddApp.Db;
-using GibddApp.Forms.Driver;
+using GibddApp.Forms;
 using System.ComponentModel;
 
 namespace GibddApp
@@ -81,11 +81,19 @@ namespace GibddApp
 
         private void MainFormListView_DoubleClick(object sender, EventArgs e)
         {
-            IBindingList bindingList = LoadData(mainFormListView.SelectedItems[0].Index);            
+            IBindingList bindingList = LoadData(mainFormListView.SelectedItems[0].Index);
 
-            var dataView = new DataView(bindingList, mainFormListView.SelectedItems[0].Text);
+            // var dataView = new DataView(bindingList, mainFormListView.SelectedItems[0].Text);
+            // dataView.ShowDialog();            
 
-            dataView.ShowDialog();            
+            FormBase form = null;
+
+            if (mainFormListView.SelectedItems[0].Text == "DRIVER")
+            {
+                form = new DriverForm();
+            }
+            
+            form.ShowDialog();
         }
 
         #endregion

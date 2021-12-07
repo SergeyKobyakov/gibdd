@@ -1,6 +1,6 @@
-﻿namespace GibddApp.Forms.Driver
+﻿namespace GibddApp.Forms
 {
-    partial class DataView
+    partial class FormBase
     {
         /// <summary>
         /// Required designer variable.
@@ -41,16 +41,16 @@
             this.dataGridView.RowTemplate.Height = 25;
             this.dataGridView.Size = new System.Drawing.Size(800, 450);
             this.dataGridView.TabIndex = 0;
+            this.dataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.driverDataGridView_CellValueChanged);            
             // 
-            // SlaveForm
+            // FormBase
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.dataGridView);
-            this.Name = "SlaveForm";
-            this.Text = "FormTitle";
-            this.TopMost = true;
+            this.Name = "FormBase";
+            this.Text = "FormBase";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.ResumeLayout(false);
 
@@ -58,9 +58,6 @@
 
         #endregion
 
-        private DataGridView dataGridView;
-        private DataGridViewTextBoxColumn LICENSE;
-        private DataGridViewTextBoxColumn FIO;
-        private DataGridViewTextBoxColumn ADRES;
+        protected DataGridView dataGridView;
     }
 }
