@@ -9,6 +9,7 @@ namespace GibddApp.Forms
             InitializeComponent();
 
             dataGridView.DataSource = LoadData();
+            dataGridView.AutoGenerateColumns = false;
             DataGridSetup();
         }
 

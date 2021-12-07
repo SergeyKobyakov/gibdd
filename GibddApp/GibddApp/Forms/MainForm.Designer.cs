@@ -83,16 +83,24 @@ namespace GibddApp
         {
             IBindingList bindingList = LoadData(mainFormListView.SelectedItems[0].Index);
 
-            // var dataView = new DataView(bindingList, mainFormListView.SelectedItems[0].Text);
-            // dataView.ShowDialog();            
-
             FormBase form = null;
 
-            if (mainFormListView.SelectedItems[0].Text == "DRIVER")
+            switch(mainFormListView.SelectedItems[0].Text)
             {
-                form = new DriverForm();
+                case "DRIVER":
+                    form = new DriverForm();
+                    break;
+                case "CAR":
+                    form = new CarForm();
+                    break;
+                case "PROTOCOL":
+                    form = new ProtocolForm();
+                    break;
+                case "VIOLATION":
+                    form = new ViolationForm();
+                    break;
             }
-            
+
             form.ShowDialog();
         }
 

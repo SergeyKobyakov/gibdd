@@ -27,10 +27,14 @@ namespace GibddApp.Forms
 
         protected override void DataGridSetup()
         {
-            dataGridView.Columns["License"].ReadOnly = true;
             dataGridView.Columns["License"].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridView.Columns["FIO"].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridView.Columns["ADRES"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridView.Columns["License"].DisplayIndex = 0;
+
+            dataGridView.Columns["Fio"].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            dataGridView.Columns["Fio"].DisplayIndex = 1;
+
+            dataGridView.Columns["Adres"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridView.Columns["Adres"].DisplayIndex = 2;
         }
     }
 }
