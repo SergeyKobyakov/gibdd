@@ -25,10 +25,13 @@ namespace GibddApp.Db
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			base.OnConfiguring(optionsBuilder);
-			
+
+			var connectionString = ConfigurationManager.ConnectionStrings["GibddDatabase"].ConnectionString.TrimEnd(';')
+				+$";user={LoginInfo.Login};password={LoginInfo.Password}";
+				
 			optionsBuilder
 				.UseLoggerFactory(MyLoggerFactory)
-                .UseFirebird(ConfigurationManager.ConnectionStrings["GibddDatabase"].ConnectionString);
+                .UseFirebird(connectionString);
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)

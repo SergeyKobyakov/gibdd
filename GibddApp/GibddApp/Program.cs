@@ -1,3 +1,5 @@
+using GibddApp.Forms;
+
 namespace GibddApp
 {
     internal static class Program
@@ -9,6 +11,14 @@ namespace GibddApp
         static void Main()
         {
             ApplicationConfiguration.Initialize();
+
+            using (var loginForm = new LoginForm())
+            {
+                var dr = loginForm.ShowDialog();
+                if (dr != DialogResult.OK)
+                    return;
+            }                
+
             Application.Run(new MainForm());
         }
     }
