@@ -35,7 +35,10 @@ namespace GibddApp
             var repository = new Repository();
             var userPrivileges = repository.GetCurrentUserPrivileges();
             if ((userPrivileges?.Count ?? 0) == 0)
+            {
+                Messages.ShowErrorMessage("Неправильный логин пароль. Или у пользователя нет прав.");
                 return false;
+            }
 
             foreach(var item in userPrivileges!)
             {
