@@ -9,28 +9,33 @@ namespace GibddApp.Forms
         public CarForm(): base(     
             Tables.Car,
             new[] {
-                ("Gosno", "Гос. номер"),
-                ("Brand", "Марка"),
-                ("Model", "Модель"),
-                ("YearCar", "Год выпуска"),
-                ("Color", "Цвет"),
-                ("License", "N вод. уд-я")
-            },
-            new[]
-            {
-                "Gosno"
+                ("Gosno", "Гос. номер", false, true),
+                ("Brand", "Марка", false, false),
+                ("Model", "Модель", false, false),
+                ("YearCar", "Год выпуска", false, false),
+                ("Color", "Цвет", false, false),
+                ("License", "N вод. уд-я", true, false)
             })
         {
             Text = "Автомобили";
         }
 
-        protected override IBindingList LoadData()
+        protected override void LoadData()
         {
-            if (!LoginInfo.CanSelect(TableName))
-                return new BindingList<Car>();
-
             var cars = Repository.GetCars();
-            return new BindingList<Car>(cars);
-        }        
+            Data = new BindingList<Car>(cars);
+        }
+
+        protected override void LoadLinkedData()
+        {
+            var drivers = Repository.GetDrivers().Select(c => c.License).ToList();
+            var licenseColumn = dataGridView.Columns["License"] as DataGridViewComboBoxColumn;
+            licenseColumn.DataSource = drivers;
+
+            dataGridView.DefaultValuesNeeded += (object? sender, DataGridViewRowEventArgs e) =>
+            {                
+                e.Row.Cells[licenseColumn.Name].Value = drivers[0];
+            };
+        }
     }
 }

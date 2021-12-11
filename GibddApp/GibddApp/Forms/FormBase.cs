@@ -5,37 +5,41 @@ namespace GibddApp.Forms
 {
     internal partial class FormBase : Form
     {
+        protected readonly List<DataGridViewColumn> Columns;
         protected readonly Repository Repository = new Repository();
         protected readonly string TableName;
         protected int RowCount = 0;
 
-        private HashSet<int> ReadOnlyKeyColumnIndexes = new();
+        private HashSet<string> ReadOnlyColumnNames = new();
         
         protected IBindingList Data;
 
         private object previousValue = null;
 
-        public FormBase(string tableName, (string, string)[] columnNames, string[] readOnlyColumnNames)
+        public FormBase(string tableName, 
+            (string name, string header, bool linked, bool readOnly)[] columns)
         {
             InitializeComponent();
+            dataGridView.AutoGenerateColumns = false;
 
             TableName = tableName;
-
-            Data = LoadData();
-
-            dataGridView.DataSource = Data;
-            RowCount = Data?.Count ?? 0;
-
-            dataGridView.AutoGenerateColumns = false;
+            AddColumns(columns);
             
-            SetupColumns(columnNames);
-            AddReadOnlyKeyColumnIndexes(readOnlyColumnNames);
+            LoadData();
+            LoadLinkedData();
+            
+            dataGridView.DataSource = Data;
+            RowCount = Data?.Count ?? 0;            
+                        
             SetupRights();
         }
         
-        protected virtual IBindingList LoadData()
+        protected virtual void LoadData()
+        {            
+        }
+
+        protected virtual void LoadLinkedData()
         {
-            return new BindingList<object>();
         }
 
         private void SetupRights()
@@ -72,7 +76,8 @@ namespace GibddApp.Forms
 
         private void dataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
-            if (e.RowIndex < RowCount && ReadOnlyKeyColumnIndexes.Contains(e.ColumnIndex))
+            if (e.RowIndex < RowCount && ReadOnlyColumnNames.Contains(
+                dataGridView.Columns[e.ColumnIndex].Name))
                 e.Cancel = true;
 
             previousValue = dataGridView.CurrentCell.Value;
@@ -110,24 +115,25 @@ namespace GibddApp.Forms
         #endregion
 
         #region SetupColumns
-        private void AddReadOnlyKeyColumnIndexes(string[] columnNames)
+        protected void AddColumns((string name, string header, bool linked, bool readOnly)[] columnsData)
         {
-            foreach (var columnName in columnNames)
-                ReadOnlyKeyColumnIndexes.Add(dataGridView.Columns[columnName].Index);
-        }
+            DataGridViewColumn column = null;
 
-        protected void SetupColumns((string, string)[] columnNames)
-        {
-            for (var i = 0; i < columnNames.Length; i++)
+            foreach(var columnData in columnsData)
             {
-                var column = dataGridView.Columns[columnNames[i].Item1];
-                column.HeaderText = columnNames[i].Item2;
+                column = columnData.linked
+                ? new DataGridViewComboBoxColumn()
+                : new DataGridViewTextBoxColumn();
 
-                column.AutoSizeMode = i < columnNames.Length - 1
-                    ? DataGridViewAutoSizeColumnMode.DisplayedCells
-                    : DataGridViewAutoSizeColumnMode.Fill;
+                column.Name = columnData.name;
+                column.DataPropertyName = columnData.name;
+                column.HeaderText = columnData.header;
+                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
 
-                column.DisplayIndex = i;
+                dataGridView.Columns.Add(column);
+
+                if (columnData.readOnly)
+                    ReadOnlyColumnNames.Add(columnData.name);
             }            
         }
         #endregion

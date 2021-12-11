@@ -10,23 +10,19 @@ namespace GibddApp.Forms
             Tables.Violation,
             new[] 
             {
-                ("CodeVio", "Код нарушения"),
-                ("NameVio", "Название нарушения"),
-                ("Article", "Статья нарушения"),
-                ("Sanction", "Санкция")
-            },
-            new[]
-            {
-                "CodeVio"
+                ("CodeVio", "Код нарушения", false, true),
+                ("NameVio", "Название нарушения", false, false),
+                ("Article", "Статья нарушения", false, false),
+                ("Sanction", "Санкция", false, false)
             })
         {
             Text = "Нарушения";
         }
 
-        protected override IBindingList LoadData()
+        protected override void LoadData()
         {
             var violations = Repository.GetViolations();
-            return new BindingList<Violation>(violations);
+            Data = new BindingList<Violation>(violations);
         }
     }
 }

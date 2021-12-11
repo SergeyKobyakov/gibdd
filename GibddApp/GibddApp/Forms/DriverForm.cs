@@ -10,22 +10,18 @@ namespace GibddApp.Forms
             Tables.Driver,
             new[] 
             {
-                ("License", "N вод. уд-я"),
-                ("Fio", "ФИО"),
-                ("Adres", "Адрес")
-            },
-            new[] 
-            {
-                "License"
+                ("License", "N вод. уд-я", false, true),
+                ("Fio", "ФИО", false, false),
+                ("Adres", "Адрес", false, false)
             })
         {
             Text = "Водители";
         }
 
-        protected override IBindingList LoadData()
+        protected override void LoadData()
         {
             var drivers = Repository.GetDrivers();
-            return new BindingList<Driver>(drivers);
+            Data = new BindingList<Driver>(drivers);
         }        
     }
 }

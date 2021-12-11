@@ -10,21 +10,15 @@ namespace GibddApp.Forms
             Tables.Driver,
             new[] 
             {
-                ("UserName", "Имя пользователя"),
-                ("IsAdmin", "Является администратором"),
-                ("Password", "Пароль")
-            },
-            new[] 
-            {
-                "UserName", 
-                "IsAdmin",
-                "Password"
+                ("UserName", "Имя пользователя", false, true),
+                ("IsAdmin", "Является администратором", false, true),
+                ("Password", "Пароль", false, true)
             })
         {
             Text = "Пользователи";                 
         }
 
-        protected override IBindingList LoadData()
+        protected override void LoadData()
         {
             var allUserPriveleges = Repository.GetAllUserPrivileges();
             var users = allUserPriveleges.DistinctBy(c => c.UserName)
@@ -44,7 +38,7 @@ namespace GibddApp.Forms
                     && userPriveleges.Contains("I");
             }
 
-            return new BindingList<User>(users);     
+            Data = new BindingList<User>(users);     
         }
 
         protected override void AddRow(int rowIndex, int columnIndex)
