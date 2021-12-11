@@ -21,7 +21,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка получения списка автомобилей");
+                MessageBox.Show($"Ошибка получения списка автомобилей: {ex.Message} {ex.InnerException?.Message}");
                 return new List<Car>();
             }
         }
@@ -41,7 +41,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка получения списка водителей: {ex.Message}");
+                ShowError($"Ошибка получения списка водителей: {ex.Message} {ex.InnerException?.Message}");
                 return new List<Driver>();
             }            
         }
@@ -61,7 +61,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка получения списка протоколов: {ex.Message}");
+                ShowError($"Ошибка получения списка протоколов: {ex.Message} {ex.InnerException?.Message}");
                 return new List<Protocol>();
             }
         }
@@ -81,7 +81,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка получения списка нарушений: {ex.Message}");
+                ShowError($"Ошибка получения списка нарушений: {ex.Message} {ex.InnerException?.Message}");
                 return new List<Violation>();
             }            
         }
@@ -106,7 +106,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка получения списка пользователей: {ex.Message}");
+                ShowError($"Ошибка получения списка пользователей: {ex.Message} {ex.InnerException?.Message}");
                 return new List<UserPrivilege>();
             }            
         }
@@ -137,50 +137,68 @@ namespace GibddApp.Db
                 if (ex.ErrorCode == 335544472)
                     errorMessage = "Логин пароль указаны неверно";
                 else
-                    errorMessage = ex.Message;
+                    errorMessage = $"{ex.Message} {ex.InnerException?.Message}";
 
                 ShowError(errorMessage);
                 return new List<UserPrivilege>();
             }            
         }
 
-        public void Update<T>(T item)
-        {
-            using (var db = new GibddDbContext())
-            {
-                db.Entry(item).State = EntityState.Modified;
-                SaveChanges(db);
-            }
-        }
-
-        public void Add<T>(T item)
-        {
-            using (var db = new GibddDbContext())
-            {
-                db.Add(item);
-                SaveChanges(db);
-            }
-        }
-
-        public void Delete<T>(T item)
-        {
-            using (var db = new GibddDbContext())
-            {
-                db.Remove(item);
-                SaveChanges(db);
-            }
-        }
-
-        public void SaveChanges(GibddDbContext db)
+        public bool Update<T>(T item)
         {
             try
             {
-                db.SaveChanges();
+                using (var db = new GibddDbContext())
+                {
+                    db.Entry(item).State = EntityState.Modified;
+                    db.SaveChanges();
+                }                
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка изменения данных: {ex.Message}");
+                ShowError($"Ошибка обновления записи:{ex.Message} {ex.InnerException?.Message}");
+                return false;
             }
+
+            return true;
+        }
+
+        public bool Add<T>(T item)
+        {
+            try
+            {
+                using (var db = new GibddDbContext())
+                {
+                    db.Add(item);
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка добавления записи:{ex.Message} {ex.InnerException?.Message}");
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool Delete<T>(T item)
+        {
+            try
+            {
+                using (var db = new GibddDbContext())
+                {
+                    db.Remove(item);
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка удаления записи:{ex.Message} {ex.InnerException?.Message}");
+                return false;
+            }
+
+            return true;
         }
 
         private void ShowError(string message)

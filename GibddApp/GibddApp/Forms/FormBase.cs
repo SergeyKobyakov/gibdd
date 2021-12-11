@@ -1,5 +1,6 @@
 ﻿using GibddApp.Db;
 using System.ComponentModel;
+using System.Data;
 
 namespace GibddApp.Forms
 {
@@ -11,7 +12,9 @@ namespace GibddApp.Forms
 
         private HashSet<int> PrimaryKeyColumnIndexes = new();
         private int rowCount = 0;
-        protected IBindingList? Data;
+        protected IBindingList Data;
+
+        private object previousValue = null;
 
         public FormBase(string tableName, string[] columnNames, string[] primaryKeyColumnNames)
         {
@@ -48,30 +51,16 @@ namespace GibddApp.Forms
                 dataGridView.AllowUserToDeleteRows = false;
         }
 
-        #region DatabaseUpdate
-        protected virtual void UpdateEntity(int changedRowIndex)
-        {
-            Repository.Update(Data[changedRowIndex]);
-        }
-
-        protected virtual void AddNewEntity(int addedRowIndex)
-        {
-            Repository.Add(Data[addedRowIndex]);
-        }
-
-        protected virtual void DeleteEntity(int deletedRowIndex)
-        {
-            Repository.Delete(Data[deletedRowIndex]);
-        }        
-        #endregion
-
         #region Events
         private void driverDataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex == rowCount)
                 return;
 
-            UpdateEntity(e.RowIndex);
+            if (!Repository.Update(Data[e.RowIndex]) && previousValue != null)
+            {
+                dataGridView.CurrentCell.Value = previousValue;
+            }
         }
 
         private void dataGridView_RowLeave(object sender, DataGridViewCellEventArgs e)
@@ -79,7 +68,16 @@ namespace GibddApp.Forms
             if (Data.Count == rowCount || e.RowIndex < rowCount - 1)                
                 return;
 
-            AddNewEntity(e.RowIndex);
+            dataGridView[e.ColumnIndex, e.RowIndex].Value = dataGridView[e.ColumnIndex, e.RowIndex].EditedFormattedValue;
+
+            if (!Repository.Add(Data[e.RowIndex]))
+            {
+                if (Data.Count >= e.RowIndex +1)
+                    Data.RemoveAt(e.RowIndex);
+
+                return;
+            }
+
             rowCount++;
         }
 
@@ -87,12 +85,17 @@ namespace GibddApp.Forms
         {
             if (e.RowIndex < rowCount && PrimaryKeyColumnIndexes.Contains(e.ColumnIndex))
                 e.Cancel = true;
+
+            previousValue = dataGridView.CurrentCell.Value;
         }
 
         private void dataGridView_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
-            DeleteEntity(e.Row.Index);
-            rowCount--;
+            if (e.Row != null)
+            {
+                Repository.Delete(Data[e.Row.Index]);
+                rowCount--;
+            }
         }
         #endregion
 
