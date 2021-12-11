@@ -1,4 +1,6 @@
-﻿using GibddApp.Db.Models;
+﻿using FirebirdSql.Data.FirebirdClient;
+using GibddApp.Db.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GibddApp.Db
 {
@@ -6,38 +8,184 @@ namespace GibddApp.Db
     {
         public List<Car> GetCars()
         {
-            using (var db = new GibddDbContext())
+            if (!LoginInfo.CanSelect(Tables.Car))
+                return new List<Car>();
+
+            try
             {
-                var cars = db.Cars.OrderBy(c => c.Gosno).ToList();
-                return cars;
+                using (var db = new GibddDbContext())
+                {
+                    var cars = db.Cars.OrderBy(c => c.Gosno).ToList();
+                    return cars;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка получения списка автомобилей");
+                return new List<Car>();
             }
         }
 
         public List<Driver> GetDrivers()
         {
-            using (var db = new GibddDbContext())
+            if (!LoginInfo.CanSelect(Tables.Driver))
+                return new List<Driver>();
+
+            try
             {
-                var drivers = db.Drivers.OrderBy(c => c.License).ToList();
-                return drivers.ToList();
+                using (var db = new GibddDbContext())
+                {
+                    var drivers = db.Drivers.OrderBy(c => c.License).ToList();
+                    return drivers.ToList();
+                }
             }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка получения списка водителей: {ex.Message}");
+                return new List<Driver>();
+            }            
         }
         
         public List<Protocol> GetProtocols()
         {
-            using (var db = new GibddDbContext())
+            if (!LoginInfo.CanSelect(Tables.Protocol))
+                return new List<Protocol>();
+
+            try
             {
-                var protocol = db.Protocols.OrderBy(c => c.NoProtocol).ToList();
-                return protocol.ToList();
+                using (var db = new GibddDbContext())
+                {
+                    var protocol = db.Protocols.OrderBy(c => c.NoProtocol).ToList();
+                    return protocol.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка получения списка протоколов: {ex.Message}");
+                return new List<Protocol>();
             }
         }
         
         public List<Violation> GetViolations()
         {
+            if (!LoginInfo.CanSelect(Tables.Violation))
+                return new List<Violation>();
+
+            try
+            {
+                using (var db = new GibddDbContext())
+                {
+                    var violations = db.Violations.OrderBy(c => c.CodeVio).ToList();
+                    return violations.ToList();                    
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка получения списка нарушений: {ex.Message}");
+                return new List<Violation>();
+            }            
+        }
+
+        public List<UserPrivilege> GetAllUsers()
+        {
+            try
+            {
+                using (var db = new GibddDbContext())
+                {
+                    var violations = db.UserPrivileges.Where(c => c.UserName != "SYSDBA")
+                        .Select(i => new UserPrivilege
+                        {
+                            TableName = i.TableName.Trim(),
+                            UserName = i.UserName.Trim(),
+                            Privilege = i.Privilege.Trim()
+                        })
+                        .ToList();
+
+                    return violations.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка получения списка пользователей: {ex.Message}");
+                return new List<UserPrivilege>();
+            }            
+        }
+
+        public List<UserPrivilege>? GetCurrentUserPrivileges()
+        {
+            try
+            {
+                using (var db = new GibddDbContext())
+                {
+                    var userPrivileges = db.UserPrivileges
+                        .Where(c => c.UserName == LoginInfo.Login.Trim())
+                        .ToList()
+                        .Select(i => new UserPrivilege
+                        {
+                            UserName = i.UserName.Trim(),
+                            TableName = i.TableName.Trim(),
+                            Privilege = i.Privilege.Trim()
+                        })
+                        .ToList();
+
+                    return userPrivileges;
+                }
+            }
+            catch (FbException ex)
+            {
+                string errorMessage;
+                if (ex.ErrorCode == 335544472)
+                    errorMessage = "Логин пароль указаны неверно";
+                else
+                    errorMessage = ex.Message;
+
+                ShowError(errorMessage);
+                return new List<UserPrivilege>();
+            }            
+        }
+
+        public void Update<T>(T item)
+        {
             using (var db = new GibddDbContext())
             {
-                var violations = db.Violations.OrderBy(c => c.CodeVio).ToList();
-                return violations.ToList();
+                db.Entry(item).State = EntityState.Modified;
+                SaveChanges(db);
             }
         }
+
+        public void Add<T>(T item)
+        {
+            using (var db = new GibddDbContext())
+            {
+                db.Add(item);
+                SaveChanges(db);
+            }
+        }
+
+        public void Delete<T>(T item)
+        {
+            using (var db = new GibddDbContext())
+            {
+                db.Remove(item);
+                SaveChanges(db);
+            }
+        }
+
+        public void SaveChanges(GibddDbContext db)
+        {
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Ошибка изменения данных: {ex.Message}");
+            }
+        }
+
+        private void ShowError(string message)
+        {
+            MessageBox.Show(message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }        
     }
 }

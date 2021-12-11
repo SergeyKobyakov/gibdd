@@ -1,5 +1,4 @@
 ﻿using GibddApp.Db;
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 
 namespace GibddApp.Forms
@@ -8,22 +7,28 @@ namespace GibddApp.Forms
     {
         protected readonly Repository Repository = new Repository();
 
+        protected readonly string TableName;
+
         private HashSet<int> PrimaryKeyColumnIndexes = new();
         private int rowCount = 0;
-        protected IBindingList Data;
+        protected IBindingList? Data;
 
-        public FormBase(string[] columnNames, string[] primaryKeyColumnNames)
+        public FormBase(string tableName, string[] columnNames, string[] primaryKeyColumnNames)
         {
             InitializeComponent();
 
+            TableName = tableName;
+
             Data = LoadData();
+
             dataGridView.DataSource = Data;
             rowCount = Data?.Count ?? 0;
 
             dataGridView.AutoGenerateColumns = false;
             
-            SetUpColumns(columnNames);
+            SetupColumns(columnNames);
             AddPrimaryKeyColumnIndexes(primaryKeyColumnNames);
+            SetupRights();
         }
         
         protected virtual IBindingList LoadData()
@@ -31,45 +36,33 @@ namespace GibddApp.Forms
             return new BindingList<object>();
         }
 
+        private void SetupRights()
+        {
+            if (!LoginInfo.CanUpdate(TableName))
+                dataGridView.ReadOnly = true;
+
+            if (!LoginInfo.CanInsert(TableName))
+                dataGridView.AllowUserToAddRows = false;
+
+            if (!LoginInfo.CanDelete(TableName))
+                dataGridView.AllowUserToDeleteRows = false;
+        }
+
         #region DatabaseUpdate
         protected virtual void UpdateEntity(int changedRowIndex)
         {
-            using (var db = new GibddDbContext())
-            {
-                db.Entry(Data[changedRowIndex]).State = EntityState.Modified;
-                db.SaveChanges();
-            }
+            Repository.Update(Data[changedRowIndex]);
         }
 
         protected virtual void AddNewEntity(int addedRowIndex)
         {
-            using (var db = new GibddDbContext())
-            {
-                db.Add(Data[addedRowIndex]);
-                SaveChanges(db);
-            }
+            Repository.Add(Data[addedRowIndex]);
         }
 
         protected virtual void DeleteEntity(int deletedRowIndex)
         {
-            using (var db = new GibddDbContext())
-            {
-                db.Remove(Data[deletedRowIndex]);
-                SaveChanges(db);
-            }
-        }
-
-        private void SaveChanges(GibddDbContext db)
-        {
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Ошибка обновления базы данных");
-            }
-        }
+            Repository.Delete(Data[deletedRowIndex]);
+        }        
         #endregion
 
         #region Events
@@ -110,7 +103,7 @@ namespace GibddApp.Forms
                 PrimaryKeyColumnIndexes.Add(dataGridView.Columns[columnName].Index);
         }
 
-        protected void SetUpColumns(string[] columnNames)
+        protected void SetupColumns(string[] columnNames)
         {
             for (var i = 0; i < columnNames.Length; i++)
             {

@@ -7,6 +7,7 @@ namespace GibddApp.Forms
     internal class ViolationForm : FormBase
     {
         public ViolationForm(): base(            
+            Tables.Violation,
             new[] 
             {
                 "CodeVio",
@@ -19,7 +20,7 @@ namespace GibddApp.Forms
                 "CodeVio"
             })
         {
-            Text = "Violation";
+            Text = "Нарушения";
         }
 
         protected override IBindingList LoadData()

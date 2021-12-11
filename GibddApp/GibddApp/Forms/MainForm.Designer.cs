@@ -33,10 +33,10 @@ namespace GibddApp
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("CAR", 0);
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("DRIVER", 0);
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("PROTOCOL", 0);
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("VIOLATION", 0);
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("Автомобили", 0);
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Водители", 0);
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("Протоколы", 0);
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("Нарушения", 0);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.mainFormListView = new System.Windows.Forms.ListView();
             this.MenuList = new System.Windows.Forms.ImageList(this.components);
@@ -74,29 +74,27 @@ namespace GibddApp
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.mainFormListView);
             this.Name = "MainForm";
-            this.Text = "GIBDD";
+            this.Text = "База ГИБДД";
             this.ResumeLayout(false);
 
         }
 
         private void MainFormListView_DoubleClick(object sender, EventArgs e)
         {
-            IBindingList bindingList = LoadData(mainFormListView.SelectedItems[0].Index);
-
             FormBase form = null;
 
-            switch(mainFormListView.SelectedItems[0].Text)
+            switch(mainFormListView.SelectedItems[0].Index)
             {
-                case "DRIVER":
-                    form = new DriverForm();
-                    break;
-                case "CAR":
+                case 0: // CAR
                     form = new CarForm();
                     break;
-                case "PROTOCOL":
+                case 1: // DRIVER
+                    form = new DriverForm();
+                    break; 
+                case 2: // PROTOCOL
                     form = new ProtocolForm();
                     break;
-                case "VIOLATION":
+                case 3: // VIOLATION
                     form = new ViolationForm();
                     break;
             }

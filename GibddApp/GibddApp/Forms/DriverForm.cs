@@ -7,6 +7,7 @@ namespace GibddApp.Forms
     internal class DriverForm: FormBase
     {
         public DriverForm(): base(            
+            Tables.Driver,
             new[] 
             {
                 "License",
@@ -18,7 +19,7 @@ namespace GibddApp.Forms
                 "License"
             })
         {
-            Text = "Driver";
+            Text = "Водители";
         }
 
         protected override IBindingList LoadData()

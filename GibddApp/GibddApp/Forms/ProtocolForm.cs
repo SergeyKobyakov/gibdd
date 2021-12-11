@@ -6,7 +6,8 @@ namespace GibddApp.Forms
 {
     internal class ProtocolForm : FormBase
     {
-        public ProtocolForm() : base(            
+        public ProtocolForm() : base(         
+            Tables.Protocol,
             new[]
             {
                 "NoProtocol",
@@ -20,7 +21,7 @@ namespace GibddApp.Forms
                 "NoProtocol"
             })
         {
-            Text = "Protocol";
+            Text = "Протоколы";
         }
 
         protected override IBindingList? LoadData()
