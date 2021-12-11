@@ -10,11 +10,11 @@ namespace GibddApp.Forms
             Tables.Protocol,
             new[]
             {
-                "NoProtocol",
-                "CodeVio",
-                "DateVio",
-                "TimeVio",
-                "License"
+                ("NoProtocol", "N протокола"),
+                ("CodeVio", "Код нарушения"),
+                ("DateVio", "Дата нарушения"),
+                ("TimeVio", "Время нарушения"),
+                ("License", "N вод. уд-я")
             },
             new[]
             {

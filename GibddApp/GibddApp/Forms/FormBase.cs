@@ -16,7 +16,7 @@ namespace GibddApp.Forms
 
         private object previousValue = null;
 
-        public FormBase(string tableName, string[] columnNames, string[] primaryKeyColumnNames)
+        public FormBase(string tableName, (string, string)[] columnNames, string[] primaryKeyColumnNames)
         {
             InitializeComponent();
 
@@ -57,7 +57,7 @@ namespace GibddApp.Forms
             if (e.RowIndex == rowCount)
                 return;
 
-            if (!Repository.Update(Data[e.RowIndex]) && previousValue != null)
+            if (e.RowIndex >= 0 && !Repository.Update(Data[e.RowIndex]) && previousValue != null)
             {
                 dataGridView.CurrentCell.Value = previousValue;
             }
@@ -106,11 +106,12 @@ namespace GibddApp.Forms
                 PrimaryKeyColumnIndexes.Add(dataGridView.Columns[columnName].Index);
         }
 
-        protected void SetupColumns(string[] columnNames)
+        protected void SetupColumns((string, string)[] columnNames)
         {
             for (var i = 0; i < columnNames.Length; i++)
             {
-                var column = dataGridView.Columns[columnNames[i]];
+                var column = dataGridView.Columns[columnNames[i].Item1];
+                column.HeaderText = columnNames[i].Item2;
 
                 column.AutoSizeMode = i < columnNames.Length - 1
                     ? DataGridViewAutoSizeColumnMode.DisplayedCells

@@ -10,10 +10,10 @@ namespace GibddApp.Forms
             Tables.Violation,
             new[] 
             {
-                "CodeVio",
-                "NameVio",
-                "Article",
-                "Sanction"
+                ("CodeVio", "Код нарушения"),
+                ("NameVio", "Название нарушения"),
+                ("Article", "Статья нарушения"),
+                ("Sanction", "Санкция")
             },
             new[]
             {

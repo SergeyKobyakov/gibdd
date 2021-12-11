@@ -10,9 +10,9 @@ namespace GibddApp.Forms
             Tables.Driver,
             new[] 
             {
-                "License",
-                "Fio",
-                "Adres"
+                ("License", "N вод. уд-я"),
+                ("Fio", "ФИО"),
+                ("Adres", "Адрес")
             },
             new[] 
             {

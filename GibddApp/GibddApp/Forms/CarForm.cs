@@ -9,12 +9,12 @@ namespace GibddApp.Forms
         public CarForm(): base(     
             Tables.Car,
             new[] {
-                "Gosno",
-                "Brand",
-                "Model",
-                "YearCar",
-                "Color",
-                "License"
+                ("Gosno", "Гос. номер"),
+                ("Brand", "Марка"),
+                ("Model", "Модель"),
+                ("YearCar", "Год выпуска"),
+                ("Color", "Цвет"),
+                ("License", "N вод. уд-я")
             },
             new[]
             {
