@@ -4,8 +4,10 @@ using System.ComponentModel;
 
 namespace GibddApp.Forms
 {
-    public partial class FormBase : Form
+    internal partial class FormBase : Form
     {
+        protected readonly Repository Repository = new Repository();
+
         private HashSet<int> PrimaryKeyColumnIndexes = new();
         private int rowCount = 0;
         protected IBindingList Data;

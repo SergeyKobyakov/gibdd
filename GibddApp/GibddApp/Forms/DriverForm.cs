@@ -23,11 +23,8 @@ namespace GibddApp.Forms
 
         protected override IBindingList LoadData()
         {
-            using (var db = new GibddDbContext())
-            {
-                var drivers = db.Drivers.OrderBy(c => c.License).ToList();                
-                return new BindingList<Driver>(drivers);
-            }
+            var drivers = Repository.GetDrivers();
+            return new BindingList<Driver>(drivers);
         }        
     }
 }

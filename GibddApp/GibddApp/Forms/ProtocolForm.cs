@@ -25,11 +25,8 @@ namespace GibddApp.Forms
 
         protected override IBindingList? LoadData()
         {
-            using (var db = new GibddDbContext())
-            {
-                var protocol = db.Protocols.OrderBy(c => c.NoProtocol).ToList();
-                return new BindingList<Protocol>(protocol);
-            }
+            var protocols = Repository.GetProtocols();
+            return new BindingList<Protocol>(protocols);
         }
     }
 }

@@ -24,11 +24,8 @@ namespace GibddApp.Forms
 
         protected override IBindingList LoadData()
         {
-            using (var db = new GibddDbContext())
-            {
-                var violation = db.Violations.OrderBy(c => c.CodeVio).ToList();
-                return new BindingList<Violation>(violation);
-            }
+            var violations = Repository.GetViolations();
+            return new BindingList<Violation>(violations);
         }
     }
 }

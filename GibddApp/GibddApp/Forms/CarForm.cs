@@ -25,11 +25,8 @@ namespace GibddApp.Forms
 
         protected override IBindingList LoadData()
         {
-            using (var db = new GibddDbContext())
-            {
-                var cars = db.Cars.OrderBy(c => c.Gosno).ToList();
-                return new BindingList<Car>(cars);
-            }
+            var cars = Repository.GetCars();
+            return new BindingList<Car>(cars);
         }        
     }
 }
