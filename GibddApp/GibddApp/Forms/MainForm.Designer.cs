@@ -37,6 +37,7 @@ namespace GibddApp
             System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Водители", 0);
             System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("Протоколы", 0);
             System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("Нарушения", 0);
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Пользователи", 1);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.mainFormListView = new System.Windows.Forms.ListView();
             this.MenuList = new System.Windows.Forms.ImageList(this.components);
@@ -49,7 +50,8 @@ namespace GibddApp
             listViewItem1,
             listViewItem2,
             listViewItem3,
-            listViewItem4});
+            listViewItem4,
+            listViewItem5});
             this.mainFormListView.LargeImageList = this.MenuList;
             this.mainFormListView.Location = new System.Drawing.Point(0, 0);
             this.mainFormListView.MultiSelect = false;
@@ -57,7 +59,7 @@ namespace GibddApp
             this.mainFormListView.Size = new System.Drawing.Size(800, 450);
             this.mainFormListView.SmallImageList = this.MenuList;
             this.mainFormListView.TabIndex = 0;
-            this.mainFormListView.UseCompatibleStateImageBehavior = false;
+            this.mainFormListView.UseCompatibleStateImageBehavior = false;            
             this.mainFormListView.DoubleClick += new System.EventHandler(this.MainFormListView_DoubleClick);
             // 
             // MenuList
@@ -66,6 +68,7 @@ namespace GibddApp
             this.MenuList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("MenuList.ImageStream")));
             this.MenuList.TransparentColor = System.Drawing.Color.Transparent;
             this.MenuList.Images.SetKeyName(0, "DataTable_32x.jpg");
+            this.MenuList.Images.SetKeyName(1, "GroupOfUsers_16x.jpg");
             // 
             // MainForm
             // 
@@ -96,6 +99,15 @@ namespace GibddApp
                     break;
                 case 3: // VIOLATION
                     form = new ViolationForm();
+                    break;
+                case 4: // USERS
+                    if (!LoginInfo.IsSysDba)
+                    {
+                        Messages.ShowErrorMessage("Работа с пользователями разрешена только SYSDBA!");
+                        return;
+                    }
+
+                    form = new UserForm();
                     break;
             }
 

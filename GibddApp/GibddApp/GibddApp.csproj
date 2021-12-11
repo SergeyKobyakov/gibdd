@@ -19,6 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Forms\UserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\ViolationForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -37,10 +40,6 @@
     <None Update="nlog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Constants\" />
   </ItemGroup>
 
 </Project>

@@ -45,6 +45,9 @@ namespace GibddApp
                 LoginInfo.Privileges[item.TableName].Add(item.Privilege);
             }
 
+            if (LoginInfo.Login == "SYSDBA")
+                LoginInfo.IsSysDba = true;
+
             return true;
         }
     }

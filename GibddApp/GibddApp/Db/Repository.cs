@@ -1,5 +1,6 @@
 ﻿using FirebirdSql.Data.FirebirdClient;
 using GibddApp.Db.Models;
+using GibddApp.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GibddApp.Db
@@ -41,7 +42,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка получения списка водителей: {ex.Message} {ex.InnerException?.Message}");
+                Messages.ShowErrorMessage($"Ошибка получения списка водителей: {ex.Message} {ex.InnerException?.Message}");
                 return new List<Driver>();
             }            
         }
@@ -61,7 +62,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка получения списка протоколов: {ex.Message} {ex.InnerException?.Message}");
+                Messages.ShowErrorMessage($"Ошибка получения списка протоколов: {ex.Message} {ex.InnerException?.Message}");
                 return new List<Protocol>();
             }
         }
@@ -81,18 +82,19 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка получения списка нарушений: {ex.Message} {ex.InnerException?.Message}");
+                Messages.ShowErrorMessage($"Ошибка получения списка нарушений: {ex.Message} {ex.InnerException?.Message}");
                 return new List<Violation>();
             }            
         }
 
-        public List<UserPrivilege> GetAllUsers()
+        public List<UserPrivilege> GetAllUserPrivileges()
         {
             try
             {
                 using (var db = new GibddDbContext())
                 {
-                    var violations = db.UserPrivileges.Where(c => c.UserName != "SYSDBA")
+                    var violations = db.UserPrivileges.Where(c => c.UserName != "SYSDBA")                       
+                        .ToList()
                         .Select(i => new UserPrivilege
                         {
                             TableName = i.TableName.Trim(),
@@ -106,7 +108,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка получения списка пользователей: {ex.Message} {ex.InnerException?.Message}");
+                Messages.ShowErrorMessage($"Ошибка получения списка пользователей: {ex.Message} {ex.InnerException?.Message}");
                 return new List<UserPrivilege>();
             }            
         }
@@ -139,9 +141,60 @@ namespace GibddApp.Db
                 else
                     errorMessage = $"{ex.Message} {ex.InnerException?.Message}";
 
-                ShowError(errorMessage);
+                Messages.ShowErrorMessage(errorMessage);
                 return new List<UserPrivilege>();
             }            
+        }
+
+        public bool CreateUser(User user)
+        {
+            var tablesList = new[] { Tables.Violation, Tables.Protocol, Tables.Car, Tables.Driver };
+
+            try
+            {
+                var createUserCommand = $"CREATE USER {user.UserName} PASSWORD '{user.Password}';";
+
+                var userRights = user.IsAdmin
+                    ? "ALL"
+                    : "SELECT";
+
+                using (var db = new GibddDbContext())
+                {
+                    db.Database.ExecuteSqlRaw(createUserCommand);
+
+                    foreach (var table in tablesList)
+                    {
+                        var grantOptionsCommand = $"GRANT {userRights} ON {table} TO USER {user.UserName};";
+                        db.Database.ExecuteSqlRaw(grantOptionsCommand);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Messages.ShowErrorMessage($"Ошибка добавления пользователя:{ex.Message} {ex.InnerException?.Message}");
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool DropUser(User user)
+        {
+            try
+            {
+                using (var db = new GibddDbContext())
+                {
+                    db.Database.ExecuteSqlRaw($"REVOKE ALL ON ALL FROM {user.UserName};");
+                    db.Database.ExecuteSqlRaw($"DROP USER {user.UserName};");
+                }
+            }
+            catch (Exception ex)
+            {
+                Messages.ShowErrorMessage($"Ошибка удаления пользователя:{ex.Message} {ex.InnerException?.Message}");
+                return false;
+            }
+
+            return true;
         }
 
         public bool Update<T>(T item)
@@ -156,7 +209,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка обновления записи:{ex.Message} {ex.InnerException?.Message}");
+                Messages.ShowErrorMessage($"Ошибка обновления записи:{ex.Message} {ex.InnerException?.Message}");
                 return false;
             }
 
@@ -175,7 +228,7 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка добавления записи:{ex.Message} {ex.InnerException?.Message}");
+                Messages.ShowErrorMessage($"Ошибка добавления записи:{ex.Message} {ex.InnerException?.Message}");
                 return false;
             }
 
@@ -194,16 +247,11 @@ namespace GibddApp.Db
             }
             catch (Exception ex)
             {
-                ShowError($"Ошибка удаления записи:{ex.Message} {ex.InnerException?.Message}");
+                Messages.ShowErrorMessage($"Ошибка удаления записи:{ex.Message} {ex.InnerException?.Message}");
                 return false;
             }
 
             return true;
-        }
-
-        private void ShowError(string message)
-        {
-            MessageBox.Show(message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }        
     }
 }

@@ -1,22 +1,21 @@
 ﻿using GibddApp.Db;
 using System.ComponentModel;
-using System.Data;
 
 namespace GibddApp.Forms
 {
     internal partial class FormBase : Form
     {
         protected readonly Repository Repository = new Repository();
-
         protected readonly string TableName;
+        protected int RowCount = 0;
 
-        private HashSet<int> PrimaryKeyColumnIndexes = new();
-        private int rowCount = 0;
+        private HashSet<int> ReadOnlyKeyColumnIndexes = new();
+        
         protected IBindingList Data;
 
         private object previousValue = null;
 
-        public FormBase(string tableName, (string, string)[] columnNames, string[] primaryKeyColumnNames)
+        public FormBase(string tableName, (string, string)[] columnNames, string[] readOnlyColumnNames)
         {
             InitializeComponent();
 
@@ -25,12 +24,12 @@ namespace GibddApp.Forms
             Data = LoadData();
 
             dataGridView.DataSource = Data;
-            rowCount = Data?.Count ?? 0;
+            RowCount = Data?.Count ?? 0;
 
             dataGridView.AutoGenerateColumns = false;
             
             SetupColumns(columnNames);
-            AddPrimaryKeyColumnIndexes(primaryKeyColumnNames);
+            AddReadOnlyKeyColumnIndexes(readOnlyColumnNames);
             SetupRights();
         }
         
@@ -54,7 +53,7 @@ namespace GibddApp.Forms
         #region Events
         private void driverDataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex == rowCount)
+            if (e.RowIndex == RowCount)
                 return;
 
             if (e.RowIndex >= 0 && !Repository.Update(Data[e.RowIndex]) && previousValue != null)
@@ -65,25 +64,15 @@ namespace GibddApp.Forms
 
         private void dataGridView_RowLeave(object sender, DataGridViewCellEventArgs e)
         {
-            if (Data.Count == rowCount || e.RowIndex < rowCount - 1)                
+            if (Data.Count == RowCount || e.RowIndex < RowCount - 1)                
                 return;
-
-            dataGridView[e.ColumnIndex, e.RowIndex].Value = dataGridView[e.ColumnIndex, e.RowIndex].EditedFormattedValue;
-
-            if (!Repository.Add(Data[e.RowIndex]))
-            {
-                if (Data.Count >= e.RowIndex +1)
-                    Data.RemoveAt(e.RowIndex);
-
-                return;
-            }
-
-            rowCount++;
+            
+            AddRow(e.RowIndex, e.ColumnIndex);            
         }
 
         private void dataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
-            if (e.RowIndex < rowCount && PrimaryKeyColumnIndexes.Contains(e.ColumnIndex))
+            if (e.RowIndex < RowCount && ReadOnlyKeyColumnIndexes.Contains(e.ColumnIndex))
                 e.Cancel = true;
 
             previousValue = dataGridView.CurrentCell.Value;
@@ -93,17 +82,38 @@ namespace GibddApp.Forms
         {
             if (e.Row != null)
             {
-                Repository.Delete(Data[e.Row.Index]);
-                rowCount--;
+                DeleteRow(e.Row.Index);
             }
         }
+
+        protected virtual void AddRow(int rowIndex, int columnIndex)
+        {
+            dataGridView[columnIndex, rowIndex].Value = dataGridView[columnIndex, rowIndex].EditedFormattedValue;
+
+            if (!Repository.Add(Data[rowIndex]))
+            {
+                if (Data.Count >= rowIndex + 1)
+                    Data.RemoveAt(rowIndex);
+
+                return;
+            }
+
+            RowCount++;
+        }
+
+        protected virtual void DeleteRow(int rowIndex)
+        {
+            Repository.Delete(Data[rowIndex]);
+            RowCount--;
+        }
+
         #endregion
 
         #region SetupColumns
-        private void AddPrimaryKeyColumnIndexes(string[] columnNames)
+        private void AddReadOnlyKeyColumnIndexes(string[] columnNames)
         {
             foreach (var columnName in columnNames)
-                PrimaryKeyColumnIndexes.Add(dataGridView.Columns[columnName].Index);
+                ReadOnlyKeyColumnIndexes.Add(dataGridView.Columns[columnName].Index);
         }
 
         protected void SetupColumns((string, string)[] columnNames)

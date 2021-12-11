@@ -5,7 +5,7 @@
         public static string Login { get; set; }
         public static string Password { get; set; }
         public static Dictionary<string, HashSet<string>> Privileges { get; set; } = new();
-        public static bool IsAdmin { get; set; }
+        public static bool IsSysDba { get; set; }
 
         public static bool CanSelect(string tableName)
         {
